@@ -1,12 +1,13 @@
 import random
 
-file = 'mobydick.txt'
-# file = 'quotes.txt'
-with open(file, 'r') as f:
-    mobytext = f.read()
-
-mobytext = mobytext.lower()
-onlyletters = filter(lambda x: x.isalpha(), mobytext)
+# file = 'mobydick.txt'
+# # file = 'quotes.txt'
+# with open(file, 'r') as f:
+#     mobytext = f.read()
+#
+# mobytext = mobytext.lower()
+# onlyletters = filter(lambda x: x.isalpha(), mobytext)
+onlyletters = "TRULYTOENJOYBODILYWARMTHSOMESMALLPARTOFYOUMUSTBECOLD".lower()
 
 loweronly = list(onlyletters)
 
