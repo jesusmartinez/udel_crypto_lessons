@@ -1,7 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from PIL import Image
-import hashlib
 import os
 import binascii
 
@@ -10,7 +9,7 @@ def encrypt(file, key, mode):
     im = Image.open(file, mode='r', formats=['PNG'])
     # IV
     iv = os.urandom(16)
-    # print(str(iv))
+    print(str(iv))
     iv_hex = binascii.hexlify(iv)
     new_file = iv_hex.decode('utf-8') + '.png'
 
@@ -56,12 +55,19 @@ password = b'password12345678'
 new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_CTR)
 print('MODE_CTR file created: ' + new_file)
 decrypt(file=new_file, key=password, mode=AES.MODE_CTR)
-#
-# new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_ECB)
-# print('MODE_ECB file created: ' + new_file)
-# decrypt(file=new_file, key=password, mode=AES.MODE_ECB)
 
-# new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_CBC)
-# print('MODE_CBC file created: ' + new_file)
-# decrypt(file=new_file, key=password, mode=AES.MODE_CBC)
+new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_ECB)
+print('MODE_ECB file created: ' + new_file)
+decrypt(file=new_file, key=password, mode=AES.MODE_ECB)
 
+new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_CBC)
+print('MODE_CBC file created: ' + new_file)
+decrypt(file=new_file, key=password, mode=AES.MODE_CBC)
+
+new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_CFB)
+print('MODE_CFB file created: ' + new_file)
+decrypt(file=new_file, key=password, mode=AES.MODE_CFB)
+
+new_file = encrypt(file='super-man.png', key=password, mode=AES.MODE_OFB)
+print('MODE_OFB file created: ' + new_file)
+decrypt(file=new_file, key=password, mode=AES.MODE_OFB)
