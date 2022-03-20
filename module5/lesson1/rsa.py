@@ -5,6 +5,7 @@ msg_as_int = bytes_to_long(msg)
 p = getStrongPrime(512)
 q = getStrongPrime(512)
 N = p * q
+# print(N)
 
 encryption = pow(msg_as_int, 65537, N)
 print(encryption)
