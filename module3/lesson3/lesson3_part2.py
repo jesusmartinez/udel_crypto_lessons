@@ -20,27 +20,40 @@ text = b'abcdefghijklmnopqrstuvwxyzabcdef'
 scheme = AES.new(key, AES.MODE_CBC, iv)
 result = scheme.encrypt(text)
 ciphertext = binascii.b2a_hex(result)
-print(ciphertext)
+print("First output: " + ciphertext.decode('utf-8'))
 
 
 '''
-INCOMPLETE
 CBC by hand: 
 Now recompute this number using the IV, XOR, 
 and individual runs of the block cipher (one block at a time) 
 with my secret key.
 '''
 hextext_1 = binascii.hexlify(b'abcdefghijklmnop')
-hextext_2 = binascii.hexlify(b'qrstuvwxyzabcdef')
-hexkey = binascii.hexlify(key)
+hexkey = binascii.hexlify(b'andy love simone')
 hexiv = b'000102030405060708090a0b0c0d0e0f'
 
+# First chunk
+# Plaintext(first 16-bytes) _XOR_ IV
 block_cipher_1 = int(hextext_1, 16) ^ int(hexiv, 16)
-cipher_1 = block_cipher_1 ^ int(hexkey, 16)
+# Encrypt(Key, block_cipher_1)
+scheme1 = AES.new(key)
+block_cipher_1_hex = format(block_cipher_1, 'x')
+# Encryption is performed in ascii
+c1 = scheme1.encrypt(binascii.unhexlify(block_cipher_1_hex))
+# Encrypted is transformed into HEX
+cipher_1 = binascii.hexlify(c1)
 
-block_cipher_2 = cipher_1 ^ int(hextext_2, 16)
-cipher_2 = block_cipher_2 ^ int(hexkey, 16)
+# Second chunk
+# c1_hex _XOR_ Plaintext(second 16-bytes)
+hextext_2 = binascii.hexlify(b'qrstuvwxyzabcdef')
+block_cipher_2 = int(cipher_1, 16) ^ int(hextext_2, 16)
+# Encrypt(Key, block_cipher_1)
+block_cipher_2_hex = format(block_cipher_2, 'x')
+# Encryption is performed in ascii
+c2 = scheme1.encrypt(binascii.unhexlify(block_cipher_2_hex))
+# Encrypted is transformed into HEX
+cipher_2 = binascii.hexlify(c2)
 
-cipher_as_hex = format(int((str(cipher_1) + str(cipher_2))), 'x')
-print("Cipher as hex: " + str(cipher_as_hex))
-# print("Cipher as hex: " + binascii.unhexlify(cipher_as_hex))
+print("Must match  : " + cipher_1.decode('utf-8') + cipher_2.decode('utf-8'))
+

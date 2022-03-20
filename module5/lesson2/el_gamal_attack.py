@@ -1,0 +1,42 @@
+import random
+from Crypto.Util.number import GCD, long_to_bytes, bytes_to_long
+
+
+def egcd(a, b):
+    """Extended gcd of a and b. Returns (d, x, y) such that
+    d = a*x + b*y where d is the greatest common divisor of a and b."""
+    x0, x1, y0, y1 = 1, 0, 0, 1
+    while b != 0:
+        q, a, b = a // b, b, a % b
+        x0, x1 = x1, x0 - q * x1
+        y0, y1 = y1, y0 - q * y1
+    return a, x0, y0
+
+
+def inverse(a, n):
+    """Returns the inverse x of a mod n, i.e. x*a = 1 mod n. Raises a
+    ZeroDivisionError if gcd(a,n) != 1."""
+    d, a_inv, n_inv = egcd(a, n)
+    if d != 1:
+        raise ZeroDivisionError('{} is not coprime to {}'.format(a, n))
+    else:
+        return a_inv % n
+
+
+g = 2
+prime = b'E912ECF78A51FC5BBFA26A00E07A0CEC5ECEB897891643DD7DDD8056A51C71124258D52DAEF464B929F6397101F00C67CFC09B3D068B522E1C8B566431936C3A606A47928582F0D8D6B23F9019FF06A900CD5AD97E02CD3DEAA0495C968A2345858C6556623A61124C711DC0708999C08D5A349592F37DFE07A49C0D82241403'
+p = int(prime, 16)
+
+c1 = 18424891061981125566079466891923819180189054061023814911996244968757009636277781996991198589205553366877632626019687233233562516536979650853205499214249094240900255342184044396745719365913308597675593979310737613720122429835760055805218845303574586686599271581737663333099357124617446774817423136689946166367
+# We know the encoded message of c1
+m1 = b'andy love simone'
+m1_as_int = bytes_to_long(m1)
+
+# We don't know K
+# Get K as:
+K = inverse(m1_as_int, p) * c1 % p
+
+# Break message 2
+c2 = 147916986843316695573527469896022062497486746186799547986333428947128110557487364196308461373471989565404856104071324637254647685467504146965165326708794537673201648748801360926219432677374843811543425663953769549430785910736947688203941658591437841781348072102214897713002887676885484302975358896835374731746
+m2 = c2 * inverse(K, p) % p
+print(long_to_bytes(m2).decode('utf-8'))
