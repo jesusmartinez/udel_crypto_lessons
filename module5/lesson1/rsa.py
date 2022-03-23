@@ -1,6 +1,7 @@
 from Crypto.Util.number import getStrongPrime, bytes_to_long, inverse, long_to_bytes
 
-msg = b'andy rules'
+# msg = b'andy rules'
+msg = b'Saturday night studying instead of partying'
 msg_as_int = bytes_to_long(msg)
 p = getStrongPrime(512)
 q = getStrongPrime(512)

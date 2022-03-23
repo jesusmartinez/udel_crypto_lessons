@@ -1,0 +1,26 @@
+Generate DSA parameters
+$ openssl dsaparam -out dsaparam.pem 1024
+$ openssl dsaparam -in dsaparam.pem -text -noout > parameters
+
+Generate a private DSA key
+$ openssl gendsa dsaparam.pem -out dsa_priv.pem
+$ openssl dsa -in dsa_priv.pem -noout -text > private_parameters
+
+Generate a binary signature file
+$ openssl dgst -sha256 -sign dsa_priv.pem thingtosign.txt > signature.bin
+
+Read the signature file
+$ openssl asn1parse -in signature.bin -inform der
+    0:d=0  hl=2 l=  44 cons: SEQUENCE
+    2:d=1  hl=2 l=  20 prim: INTEGER           :1287541617A98C1A7BCA8701032B28187258C7D0
+   24:d=1  hl=2 l=  20 prim: INTEGER           :7230C2657E41E367DB267CD3A8AA37161548E464
+
+$ openssl dgst -sha256 -verify dsa_pub.pem -signature signature.bin thingtosign.txt
+# does not work cause pub files is not present
+
+$ openssl ecparam -genkey -name secp384r1 -noout -out ecprivate.pem
+$ openssl ec -in ecprivate.pem -pubout -out ecpublic.pem
+$ openssl dgst -sha256 -sign ecprivate.pem thingtosign.txt > ecsig.bin
+$ openssl dgst -sha256 -verify ecpublic.pem -signature ecsig.bin thingtosign.txt
+
+# still work to do, verify by hand
