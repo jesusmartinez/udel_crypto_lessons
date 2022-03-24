@@ -1,8 +1,12 @@
 from bob import *
 from tinyec import registry
 import secrets
+import json
 from hashlib import sha512
+from base64 import b64encode
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+import binascii
 
 
 '''
@@ -35,13 +39,16 @@ DHKE with ECC
 - Alice receives for Bob's public key
 '''
 def ecc():
+    print("Alice: ...generating ECC curve")
     # Generate ECC curve
     ecc_curve = registry.get_curve('brainpoolP256r1')
     # Generate Alice's private and public keys
+    print("Alice: ...generating private and public keys")
     alice_private_key = secrets.randbelow(ecc_curve.field.n)
     alice_public_key = alice_private_key * ecc_curve.g
 
     # RSA signature of curve
+    print("Alice: ...signing with RSA DS")
     rsa, curve_hash, curve_signature = rsa_signature(ecc_curve)
     curve = {
         'curve': ecc_curve,
@@ -52,21 +59,50 @@ def ecc():
     # Send to Bob: RSA, ECC curve and Alice's public Key
     # If it's RSA signature is validated correctly,
     # Alice receives Bob's public key
+    print("Alice: ...sending ECC curve")
     bob_public_key = bob_ecc(rsa, curve, alice_public_key)
 
     shared_key = alice_private_key * bob_public_key
-    print("Shared Key (Alice):", compress(shared_key))
+    print("Alice: Shared Key --> ", compress(shared_key))
+
+    return compress(shared_key)
 
 
+def read_file():
+    print("Alice: File 'quotesOrig.txt'")
+    f = open("quotesOrig.txt", 'rb')
+    txt = f.read()
+    f.close()
+
+    return txt
+
+
+def encrypt(key):
+    print("Alice: ...reading data to send")
+    data = read_file()
+
+    print("Alice: ...encrypting data with AES GCM mode")
+    header = b'andy'
+    key = binascii.unhexlify(key[2:34])
+    cipher = AES.new(key, AES.MODE_GCM)
+    cipher.update(header)
+    ciphertext, tag = cipher.encrypt_and_digest(data)
+
+    json_k = ['nonce', 'header', 'ciphertext', 'tag']
+    json_v = [b64encode(x).decode('utf-8') for x in [cipher.nonce, header, ciphertext, tag]]
+
+    return json.dumps(dict(zip(json_k, json_v)))
 
 if __name__ == '__main__':
     # Start
-    # Initiate Key Swap
-    ecc()
+    print("Alice: ...start")
 
-    # alice_key = pick_ecc_secret_key()
-    # # Send Alice's Key to Bob
-    # bob_key = bob_getKey(alice_key)
-    # # Receive Bob's Key
-    # shared_key = alice_key * bob_key
-    # print("Shared Key (Alice):", shared_key)
+    # Initiate Key Swap
+    shared_key = ecc()
+
+    # Encrypt
+    stream = encrypt(shared_key)
+
+    # Send file
+    print("Alice: ...sending data")
+    bob_receive(stream)
